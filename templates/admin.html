@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Panel de Administración</h1>
+
+        <form method="POST" action="{{ url_for('add_match') }}" class="admin-form add-form">
+            <h3>Agregar nuevo partido</h3>
+            <div>
+                <label for="nombre_equipo_a">Nombre del Equipo A:</label>
+                <input type="text" id="nombre_equipo_a" name="nombre_equipo_a" required>
+            </div>
+            <div>
+                <label for="nombre_equipo_b">Nombre del Equipo B:</label>
+                <input type="text" id="nombre_equipo_b" name="nombre_equipo_b" required>
+            </div>
+            <button type="submit">Agregar Partido</button>
+        </form>
+
+        <hr>
+
+        {% for partido in partidos %}
+        <div class="match-update-card">
+            <h3>Partido #{{ partido['id'] }}: {{ partido['equipo_a']['nombre'] }} vs {{ partido['equipo_b']['nombre'] }}</h3>
+            <form method="POST" class="admin-form">
+                <input type="hidden" name="id" value="{{ partido['id'] }}">
+                <div>
+                    <label for="puntos_a_{{ partido['id'] }}">Puntos {{ partido['equipo_a']['nombre'] }}:</label>
+                    <input type="number" id="puntos_a_{{ partido['id'] }}" name="puntos_a" value="{{ partido['equipo_a']['puntos'] }}">
+                </div>
+                <div>
+                    <label for="puntos_b_{{ partido['id'] }}">Puntos {{ partido['equipo_b']['nombre'] }}:</label>
+                    <input type="number" id="puntos_b_{{ partido['id'] }}" name="puntos_b" value="{{ partido['equipo_b']['puntos'] }}">
+                </div>
+
+                <select name="estado">
+                    <option value="no iniciado" {% if partido['estado'] == 'no iniciado' %} selected {% endif %}>No iniciado</option>
+                    <option value="en curso" {% if partido['estado'] == 'en curso' %} selected {% endif %}>En curso</option>
+                    <option value="finalizado" {% if partido['estado'] == 'finalizado' %} selected {% endif %}>Finalizado</option>
+                </select>
+                <br>
+                <button type="submit">Actualizar Partido #{{ partido['id'] }}</button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_match', match_id=partido['id']) }}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este partido?');" class="delete-form">
+                <button type="submit" class="delete-button">Eliminar Partido</button>
+            </form>
+        </div>
+        <hr>
+        {% endfor %}
+    </div>
+</body>
+</html>

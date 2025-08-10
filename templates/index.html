@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados del Torneo en Vivo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados del Torneo</h1>
+
+        {% for partido in partidos %}
+        <div class="match-card">
+            <p>Partido #{{ partido['id'] }} - Estado: <span class="status {{ partido['estado'] | replace(' ', '-') }}">{{ partido['estado'] }}</span></p>
+            <div class="score-container">
+                <div class="team-card">
+                    <h2>{{ partido['equipo_a']['nombre'] }}</h2>
+                    <h3 class="team-score">{{ partido['equipo_a']['puntos'] }}</h3>
+                </div>
+                <div class="team-card">
+                    <h2>{{ partido['equipo_b']['nombre'] }}</h2>
+                    <h3 class="team-score">{{ partido['equipo_b']['puntos'] }}</h3>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function actualizarResultados() {
+            fetch('/resultados_json')
+                .then(response => response.json())
+                .then(data => {
+                    const partidosContainer = document.querySelector('.container');
+                    partidosContainer.innerHTML = '<h1>Resultados del Torneo</h1>'; // Limpia el contenido actual
+
+                    data.forEach(partido => {
+                        const partidoHTML = `
+                            <div class="match-card">
+                                <p>Partido #${partido.id} - Estado: <span class="status ${partido.estado.replace(' ', '-')}">${partido.estado}</span></p>
+                                <div class="score-container">
+                                    <div class="team-card">
+                                        <h2>${partido.equipo_a.nombre}</h2>
+                                        <h3 class="team-score">${partido.equipo_a.puntos}</h3>
+                                    </div>
+                                    <div class="team-card">
+                                        <h2>${partido.equipo_b.nombre}</h2>
+                                        <h3 class="team-score">${partido.equipo_b.puntos}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        partidosContainer.innerHTML += partidoHTML;
+                    });
+                })
+                .catch(error => console.error('Error al obtener los resultados:', error));
+        }
+
+        // Llama a la función de actualización cada 5 segundos
+        setInterval(actualizarResultados, 5000);
+    </script>
+</body>
+</body>
+</html>
